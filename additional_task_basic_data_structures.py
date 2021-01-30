@@ -11,19 +11,19 @@ def get_min_positive_int(arr):
     """
     max_val = max(arr)
     missing_vals = []
-    if max_val > 0:
-        for x in range(max_val):
-            if x not in arr:
-                missing_vals.append(x)
-        if len(missing_vals) > 0:
-            smallest_positive = min(missing_vals)
-            print(f"Smallest missing positive integer for {arr} is {smallest_positive}")
-        else:
-            smallest_positive = max_val + 1
-            print(f"Smallest positive integer for {arr} is {smallest_positive}")
-    else:
-        smallest_positive = 1
+    if max_val <= 0:
         print(f"Smallest positive integer for {arr} is 1")
+        return 1
+    for x in range(max_val):
+        if x not in arr:
+            missing_vals.append(x)
+    if len(missing_vals) > 0:
+        smallest_positive = min(missing_vals)
+        print(f"Smallest missing positive integer for {arr} is {smallest_positive}")
+    else:
+        smallest_positive = max_val + 1
+        print(f"Smallest positive integer for {arr} is {smallest_positive}")
+    return smallest_positive
 
 
 print("\nTask 1: Smallest positive integer")
@@ -95,10 +95,9 @@ print("\nTask 3. Array rotation")
 
 
 def rotate_array(arr, rotations):
-    in_arr = arr
     for x in range(rotations):
-        arr = arr[-1:] + arr[:(len(arr)-1)]
-    print(f"Initial array {in_arr} rotated {rotations} times: {arr}")
+        arr_rot = arr[-1:] + arr[:(len(arr) - 1)]
+        print(f"Initial array {arr} rotated {rotations} times: {arr_rot}")
 
 
 rotate_array([3, 8, 9, 7, 6], 3)
