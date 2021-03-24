@@ -1,0 +1,10 @@
+string 1
+on line one
+python
+is
+maybe
+or not
+great
+or not
+who knows
+I still like it
