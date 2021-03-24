@@ -1,14 +1,21 @@
+import time
+
+
 # Задача-1
 # У вас есть файл из нескольких строк. Нужно создать генератор который будет построчно выводить строки из вашего файла.
 # При вызове итерировании по генератору необходимо проверять строки на уникальность.
 # Если строка уникальна, тогда ее выводим на экран, если нет - скипаем
 
+def get_unique_lines(file):
+    unique_lines = []
+    for line in open(file):
+        line = line.strip()
+        if line not in unique_lines:
+            yield line
+            unique_lines.append(line)
 
 
-
-
-
-
+print(f'Unique lines are:\n{list(get_unique_lines("text_10.txt"))}')
 
 
 # Задача-2 (оригинальный вариант и его делать не обязательно):
@@ -30,28 +37,48 @@
 
 # Структура пайплайна:
 # ```
-def coroutine(*args):
-    # your code here
-    pass
+
+def coroutine(func):
+    """decorator for coroutines to avoid using next for new yields"""
+    def wrap(*args, **kwargs):
+        gen = func(*args, **kwargs)
+        gen.send(None)  # next(gen) will also work instead of gen.send(None)
+        return gen
+    return wrap
+
 
 @coroutine
 def grep(*args):
-	# your code here
-    pass
+    pattern, target = args
+    while True:
+        line = yield
+        if pattern in line:
+            target.send(line)
+
 
 @coroutine
 def printer():
-	# your code here
-    pass
+    while True:
+        line = yield
+        print(line)
+
 
 @coroutine
 def dispenser(*args):
-    # your code here
-    pass
+    while True:
+        item = yield
+        for target in list(*args):
+            target.send(item)
 
-def follow(*args):
-    # your code here
-    pass
+
+def follow(file, disp):
+    while True:
+        line = file.readline().rstrip()
+        if not line:
+            continue
+        disp.send(line)
+
+
 # ```
 #
 # Каждый grep следит за определенной сигнатурой
@@ -59,15 +86,18 @@ def follow(*args):
 # Как это будет работать:
 #
 # ```
-f_open = open('log.txt') # подключаемся к файлу
-follow(f_open,
-       # делегируем ивенты
-       dispenser([
-           grep('python', printer()), # отслеживаем
-           grep('is', printer()),     # заданные
-           grep('great', printer()),  # сигнатуры
-       ])
-       )
+
+print('\nTask 2. Asynchronous event handler')
+with open('log.txt', 'r') as f_open:
+    follow(f_open,
+           # delegating events and tracking specified patterns
+           dispenser([
+               grep('python', printer()),
+               grep('is', printer()),
+               grep('great', printer())])
+           )
+
+
 # ```
 # Как только в файл запишется что-то содержащее ('python', 'is', 'great') мы сможем это увидеть
 #
@@ -78,7 +108,7 @@ follow(f_open,
 # https://www.dabeaz.com/coroutines/Coroutines.pdf
 
 
-#Задача-3 (упрощенный вариант делаете его если задача 2 показалась сложной)
+# Задача-3 (упрощенный вариант делаете его если задача 2 показалась сложной)
 # Вам нужно создать pipeline (конвеер, подобие pipeline в unix https://en.wikipedia.org/wiki/Pipeline_(Unix)).
 #
 # Схема пайплайна :
